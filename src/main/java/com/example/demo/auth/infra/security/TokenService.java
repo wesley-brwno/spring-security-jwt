@@ -4,6 +4,9 @@ package com.example.demo.auth.infra.security;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.auth0.jwt.interfaces.JWTVerifier;
 import com.example.demo.auth.model.Usuario;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -29,6 +32,21 @@ public class TokenService {
                     .sign(algorithm);
         } catch (JWTCreationException exception){
             throw new RuntimeException("error ao gerar token jwt", exception);
+        }
+    }
+
+    public String getSuject(String tokenJWT) {
+        DecodedJWT decodedJWT;
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(secret);
+            return JWT.require(algorithm)
+                    .withIssuer("API Forum Alura")
+                    .build()
+                    .verify(tokenJWT)
+                    .getSubject();
+
+        } catch (JWTVerificationException exception){
+            throw new RuntimeException("Token JWT inválido ou expirado!");
         }
     }
 
